@@ -1,3 +1,9 @@
+sources:
+
+https://github.com/Juanjdurillo/intro_unix
+https://github.com/PeterTh/bs_ue_2017
+
+
 # UIBK Operating Systems Lab 2017
 
 This repository contains material required to complete exerceises for the OS lab in the 2017 summer semester, including exercise sheets and their associated materials (in the exN directories). Note that some of this material is based on previous years.
