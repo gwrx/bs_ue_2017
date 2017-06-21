@@ -1,27 +1,28 @@
 #include "btree.h"
 #include <assert.h>
 
-	struct btree {
-	btree_node *node;
-	btree *left;
-	btree *right;
+
+struct btree {
+	btree_node* node;
 	size_t size;
 	int depth;
 };
 
-
 struct btree_node {
 	int value;
+	btree* left;
+	btree* right;
 };
 
 
-btree* btree_create() { // empty parameterlist is undefined - use void as parameter to ensure no argument is given
-	btree *tree = (btree*)malloc(sizeof(btree));
-	assert(tree != NULL);
-	// don't use assert here - asserts can be removed by compiler
-	// return something useful for the user of this module and let him handle the error
+btree* btree_create(void) { // empty parameterlist is undefined - use void as parameter to ensure no argument is given
+
+	btree* tree = malloc(sizeof(btree));
+	if (tree == NULL) {
+		printf("creation of btree failed");
+	}
+
 	tree->node = NULL;
-	tree->left = tree->right = NULL;
 	tree->size = 0;
 	tree->depth = 0;
 
@@ -29,36 +30,23 @@ btree* btree_create() { // empty parameterlist is undefined - use void as parame
 }
 
 
-//own function to remove the link to the subtree
-//check if value below is NULL cut the link to the freeed node
-static void btree_remove_link(btree* t) {
-	// use assert here - if this function is called with null-pointer the user messed up
-	if ((t->left != NULL) && (t->left->node == NULL)) {
-		free(t->left);
-		t->left = NULL;
-	}
-	if ((t->right != NULL) && (t->right->node == NULL)) {
-		free(t->right);
-		t->right = NULL;
-	}
-}
 
 
 /// Destroys and deallocates all memory for the given tree 't'
 void btree_destroy(btree* t) {
 	// use assert here - if this function is called with null-pointer the user messed up
 	if (t != NULL) {
-		if (t->left != NULL) {
-			btree_destroy(t->left);
+		if (t->node->left != NULL) {
+			btree_destroy(t->node->left);
 			btree_remove_link(t);
 		}
-		if (t->right != NULL) {
-			btree_destroy(t->right);
+		if (t->node->right != NULL) {
+			btree_destroy(t->node->right);
 			btree_remove_link(t);
 		}
 
 		//free node
-		if ((t->left == NULL) && (t->right == NULL)) {
+		if ((t->node->left == NULL) && (t->node->right == NULL)) {
 			free(t->node);
 			t->node = NULL;
 		}
@@ -70,30 +58,29 @@ void btree_destroy(btree* t) {
 	}
 }
 
-
 /// Inserts the given number 'd' into tree 't'
 /// if the number is already in 't', no changes are made
 void btree_insert(btree* t, int d) {
 	if (!btree_contains(t, d)) {
 		t->size++;
 		if (t->node == NULL) {
-			t->node = (btree_node*)malloc(sizeof(btree_node));
+			t->node = malloc(sizeof(btree_node));
 			assert(t->node != NULL);
 			t->node->value = d;
-			t->left = t->right = NULL;
+			t->node->left = t->node->right = NULL;
 		} else {
 			if (t->node->value > d) {
-				if (t->left == NULL) {
-					t->left = btree_create();
-					t->left->depth = t->depth + 1;	
+				if (t->node->left == NULL) {
+					t->node->left = btree_create();
+					t->depth++;	
 				}
-				btree_insert(t->left, d);
+				btree_insert(t->node->left, d);
 			} else {
-				if (t->right == NULL) {
-					t->right = btree_create();
-					t->right->depth = t->depth + 1;
+				if (t->node->right == NULL) {
+					t->node->right = btree_create();
+					t->depth++;	
 				}
-				btree_insert(t->right, d);
+				btree_insert(t->node->right, d);
 			}
 		}
 	}
@@ -103,32 +90,32 @@ void btree_insert(btree* t, int d) {
 /// Removes the given number 'd' from tree 't'
 void btree_remove(btree* t, int d) {
 	if (btree_contains(t, d)) {
-		t->size--;
+			t->size--;
 		if (t->node->value > d) {
-			btree_remove(t->left, d);
+			btree_remove(t->node->left, d);
 			btree_remove_link(t);
 		} else if (t->node->value < d) {
-			btree_remove(t->right, d);
+			btree_remove(t->node->right, d);
 			btree_remove_link(t);
 		} else {
 			//found node
 			//base case: node is a leaf in the tree
-			if ((t->left == NULL) && (t->right == NULL)) {
+			if ((t->node->left == NULL) && (t->node->right == NULL)) {
 				free(t->node);	
 				t->node = NULL;
 			//second case: node has one child, left or right
-			} else if ((t->left == NULL) || (t->right == NULL)) {
+			} else if ((t->node->left == NULL) || (t->node->right == NULL)) {
 				//left subtree is set
-				if (t->left != NULL) {
-					free(t->node);
+				if (t->node->left != NULL) {
+					free(t->node->left);
 					free(t);
-					t = t->left;
+					t = t->node->left;
 					t->depth--;
 				//right subtree is set
 				} else {
-					free(t->node);
+					free(t->node->right);
 					free(t);
-					t = t->right;
+					t = t->node->right;
 					t->depth--;
 				}
 			//third case, tree has two subtrees
@@ -136,9 +123,9 @@ void btree_remove(btree* t, int d) {
 			//then recursive call to remove the max from left subtree
 			} else {
 				//replace node, with max of left subtree
-				int max_node = btree_maximum(t->left);
+				int max_node = btree_maximum(t->node->left);
 				t->node->value = max_node;
-				btree_remove(t->left, max_node);
+				btree_remove(t->node->left, max_node);
 				btree_remove_link(t);
 			}
 		}
@@ -148,20 +135,20 @@ void btree_remove(btree* t, int d) {
 
 /// Returns the smallest number in tree 't'
 int btree_minimum(const btree* t) {
-	if (t->left == NULL) {
+	if (t->node->left == NULL) {
 		return t->node->value;
 	} else {
-		return btree_minimum(t->left);
+		return btree_minimum(t->node->left);
 	}
 }
 
 
 /// Returns the largest number in tree 't'
 int btree_maximum(const btree* t) {
-	if (t->right == NULL) {
+	if (t->node->right == NULL) {
 		return t->node->value;
 	} else {
-		return btree_maximum(t->right);
+		return btree_maximum(t->node->right);
 	}
 }
 
@@ -169,13 +156,13 @@ int btree_maximum(const btree* t) {
 /// Returns true if the given tree 't' contains 'd', false otherwise
 bool btree_contains(const btree* t, int d) {
 	if (t->node != NULL) {
-		if (t->node->value > d) {
-			if (t->left != NULL) {
-				return btree_contains(t->left, d);
+		if (d < t->node->value) {
+			if (t->node->left != NULL) {
+				return btree_contains(t->node->left, d);
 			}
-		} else if (t->node->value < d) {
-			if (t->right != NULL) {
-				return btree_contains(t->right, d);
+		} else if (d > t->node->value) {
+			if (t->node->right != NULL) {
+				return btree_contains(t->node->right, d);
 			}
 		} else {
 			return true;
@@ -191,37 +178,57 @@ size_t btree_size(const btree* t) {
 	return t->size;
 }
 
+static void btree_print_node(btree_node* node, FILE* out)
+{
+	fputs("(", out);
+
+	if(node->left)
+	{
+		btree_print_node(node->left, out);
+		fputs(", ", out);
+	}
+
+	fprintf(out, "%d", node->value);
+
+	if(node->right)
+	{
+		fputs(", ", out);
+		btree_print_node(node->right, out);
+	}
+
+	fputs(")", out);
+}
 
 /// Prints the given btree 't' to the supplied output stream 'out'
 /// output format: ([LEFT], VAL, [RIGHT]) : [SIZE]
 /// example empty: ( NIL ) : 0
 /// example 3,4,7 in a balanced tree: ((3), 4, (7)) : 3
-void btree_print(const btree* t, FILE* out) {
-	//depth 0 is the root of the tree
-	if (t->depth == 0) {
-		fprintf(out, "(");
+void btree_print(const btree* t, FILE* out)
+{
+	assert(t);
+
+	if(t->node == NULL)
+	{
+		fputs("( NIL )", out);
 	}
-	if (t->node == NULL) {
-		fprintf(out, "NIL");
-	} else {
-		if (t->left != NULL) {
-			fprintf(out, "(");
-			btree_print(t->left, out);
-			fprintf(out, "), ");
-		}
-
-		fprintf(out, "%d", t->node->value);
-
-		if (t->right != NULL) {
-			fprintf(out, ", (");
-			btree_print(t->right, out);
-			fprintf(out, ")");
-		}
+	else
+	{
+		btree_print_node(t->node, out);
 	}
 
-	//depth of the tree 0, root case
-	if (t->depth == 0) {
-		fprintf(out, ") : %d\n", (int)btree_size(t));
-	}
+	fprintf(out, " : %zd\n", t->size);
 }
 
+//own function to remove the link to the subtree
+//check if value below is NULL cut the link to the freeed node
+void btree_remove_link(btree* t) {
+	// use assert here - if this function is called with null-pointer the user messed up
+	if ((t->node->left != NULL) && (t->node->left->node == NULL)) {
+		free(t->node->left);
+		t->node->left = NULL;
+	}
+	if ((t->node->right != NULL) && (t->node->right->node == NULL)) {
+		free(t->node->right);
+		t->node->right = NULL;
+	}
+}

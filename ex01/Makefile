@@ -9,7 +9,7 @@ btree: $(OBJ)
 	gcc $(CFLAGS) -o $@ $^
 
 all: $(OBJ)
-	gcc $(CFLAGS) -o testvector $^
+	gcc $(CFLAGS) -o testvector $^ && ./testvector
 
 clean:
 	rm $(OBJ)

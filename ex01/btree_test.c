@@ -1,6 +1,7 @@
 #include "btree.h"
 
 #include <assert.h>
+#include <stdio.h>
 
 int main() {
 	btree *ta = btree_create();
@@ -8,6 +9,8 @@ int main() {
 	assert(btree_size(ta) == 0);
 	assert(btree_contains(ta, 4) == false);
 	btree_print(ta, stdout);
+
+	printf("inserting 4, 7, 3\n");
 
 	btree_insert(ta, 4);
 	btree_insert(ta, 7);

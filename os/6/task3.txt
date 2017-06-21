@@ -1,0 +1,10 @@
+The main difference between System V and POSIX IPC that all techniques have in common is, that POSIX IPC objects are identified by a name (starting with a /) vs. System V objects are identified by a numeric key.
+The POSIX IPC object handling is very similar to file handling (e.g. *_open, close, *_unlink).
+
+According to semaphores, with POSIX only one semaphore is created at a time, but it is initialized with the same call as well.
+Whereas with System V semaphores, an array of semaphores is created, which have to be separately initialized.
+For working with the semaphores, with System V there is a semop-function to do arbitrary incrementing and decrementing with arbitrary values.
+In contrast, with POSIX semaphores there is a sem_post function to increment the semaphore by 1 and a sem_wait function to decrement the semaphore by 1.
+
+The main difference according to shared memory is, that POSIX shared memory is attached and detached using the more general mmap and munmap functions, not specific to shared memory at all.
+Otherwise POSIX shared memory usage is quite similar to System V shared memory usage, except the common differences outlined at the beginning.

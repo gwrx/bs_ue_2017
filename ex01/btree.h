@@ -19,6 +19,8 @@ btree* btree_create();
 /// Destroys and deallocates all memory for the given tree 't'
 void btree_destroy(btree* t);
 
+void btree_remove_link(btree* t);
+
 /// Inserts the given number 'd' into tree 't'
 /// if the number is already in 't', no changes are made
 void btree_insert(btree* t, int d);

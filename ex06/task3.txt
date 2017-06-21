@@ -1,0 +1,8 @@
+form http://stackoverflow.com/questions/4582968/system-v-ipc-vs-posix-ipc
+
+...
+They offer a slightly different interface to those tools, but the basic concepts are the same. One notable difference is that POSIX offers some notification features for message queues that Sys V does not. (See mq_notify().)
+...
+
+System V is way older than POSIX - therefore a lot of programs still use the System V Interface. Posix tried to unify all the UNIX Systems to build a common platform for interprocess stuff (communication, signals etc.). Both are doing essentially the same thing, thus posix tried to serve an implementation simpler to use.
+Also, POSIX is atomic with some operations, where SysV is not.

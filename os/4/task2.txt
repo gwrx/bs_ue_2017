@@ -1,0 +1,2 @@
+No, the order of the messages is random.
+Firstly, the process ids change from run to run, and secondly the output order depends on the scheduling, which in turn depends also on other processes and is not predictable in general.
