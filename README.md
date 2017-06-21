@@ -6,7 +6,7 @@ https://github.com/PeterTh/bs_ue_2017
 
 # UIBK Operating Systems Lab 2017
 
-This repository contains material required to complete exerceises for the OS lab in the 2017 summer semester, including exercise sheets and their associated materials (in the exN directories). Note that some of this material is based on previous years.
+This repository contains material required to complete exercises for the OS lab in the 2017 summer semester, including exercise sheets and their associated materials (in the exN directories). Note that some of this material is based on previous years.
 
 ## Course Structure
 
@@ -26,3 +26,6 @@ Grades are based on the *number of exercises* you complete, the *quality of your
 Please **do not underestimate these tests**, and make sure to use the self-assessment exercise to understand whether you are ready to successfully complete this lab.
 
 **Attendence** is mandatory, failing to attend more than two times will automatically result in a failing grade. Exercises only count as completed if the lab in which they are presented is attended.
+
+**Note:**
+In order to successfully complete this course, you need to get a positive grade on *at least one test* **and** *the number of exercises and their presentation*. Both tests and the exercises/presentation contribute to your final grade.
